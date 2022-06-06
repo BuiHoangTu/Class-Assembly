@@ -121,8 +121,7 @@
 			
 			beq $t2,$t0,done_bb
 			lw $t6,0($t5) #this (a[i])
-			slt $t7, $t6,$t3
-			bne $t7,$0,bb_loop
+			ble $t6,$t3,bb_loop
 			## switch
 			#switch point 
 			add $t8,$t6,$0
@@ -145,7 +144,8 @@
 				j switchloop
 				nop
 				switch_out:
-			
+			j bb_loop
+			nop
 		done_bb:
 		addi $t1,$t1,1
 		addi $s2,$s2,4 #next position on stack
