@@ -1,32 +1,34 @@
+.eqv PICTURE_ROW 16 #number of rows of picture 
 .data
 
+    #original one contain 16 strings 
+    String1: .asciiz  "                                          *************\n"
+    String2: .asciiz  "**************                            *3333333333333*\n"
+    String3: .asciiz  "*222222222222222*                         *33333********\n"
+    String4: .asciiz  "*22222******222222*                       *33333*\n"
+    String5: .asciiz  "*22222*      *22222*                      *33333********\n"
+    String6: .asciiz  "*22222*       *22222*      *************  *3333333333333*\n"
+    String7: .asciiz  "*22222*       *22222*    **11111*****111* *33333********\n"
+    String8: .asciiz  "*22222*       *22222*  **1111**       **  *33333*\n"
+    String9: .asciiz  "*22222*      *222222*  *1111*             *33333********\n"
+    String10: .asciiz "*22222*******222222*  *11111*             *3333333333333*\n"
+    String11: .asciiz "*2222222222222222*    *11111*              *************\n"
+    String12: .asciiz "***************       *11111*\n"
+    String13: .asciiz "      ---              *1111**\n"
+    String14: .asciiz "    / o o \\             *1111****    *****\n"
+    String15: .asciiz "    \\   > /              **111111***111*\n"
+    String16: .asciiz "     -----                 ***********    tubh.hust.edu.vn\n"
 
-String1: .asciiz                                          *************
-String2: .asciiz**************                            *3333333333333*
-String3: .asciiz*222222222222222*                         *33333********
-String4: .asciiz*22222******222222*                       *33333*
-String5: .asciiz*22222*      *22222*                      *33333********
-String6: .asciiz*22222*       *22222*      *************  *3333333333333*
-String7: .asciiz*22222*       *22222*    **11111*****111* *33333********
-String8: .asciiz*22222*       *22222*  **1111**       **  *33333*
-String9: .asciiz*22222*      *222222*  *1111*             *33333********
-String10: .asciiz*22222*******222222*  *11111*             *3333333333333*
-String11: .asciiz*2222222222222222*    *11111*              *************
-String12: .asciiz***************       *11111*
-String13: .asciiz      ---              *1111**
-String14: .asciiz    / o o \             *1111****    *****
-String15: .asciiz    \   > /              **111111***111*
-String16: .asciiz     -----                 ***********    dce.hust.edu.vn
-
-    Phan1:        .asciiz"1. In ra chu\n"
-    Phan2:        .asciiz"2. In ra chu rong\n"
-    Phan3:        .asciiz"3. Thay doi vi tri\n"
-    Phan4:        .asciiz"4. Doi mau cho chu\n"
-    Thoat:        .asciiz"5. Thoat\n"
-    Nhap:        .asciiz"Nhap gia tri: "
-    ChuL:        .asciiz"Nhap m�u cho chu L(0->9): "
-    ChuP:        .asciiz"Nhap m�u cho chu P(0->9): "
-    ChuT:        .asciiz"Nhap m�u cho chu T(0->9): "
+    Message0: .ascii  "------------Menu-----------\n"
+    Phan1:    .ascii  "1. In ra chu\n"
+    Phan2:    .ascii  "2. In ra chu rong\n"
+    Phan3:    .ascii  "3. Thay doi vi tri\n"
+    Phan4:    .ascii  "4. Doi mau cho chu\n"
+    Thoat:    .ascii  "5. Thoat\n"
+    Nhap:     .asciiz  "Nhap gia tri: "
+    ChuL:     .asciiz  "Nhap mau cho chu c(0->9): "
+    ChuP:     .asciiz  "Nhap mau cho chu d(0->9): "
+    ChuT:     .asciiz  "Nhap mau cho chu e(0->9): "
 .text
 #####################################
     li $t5 50 #t5 mau chu hien tai cua chu L
@@ -38,97 +40,85 @@ main:
     li $v0, 4
     syscall
     
-    la $a0, Phan1    
-    li $v0, 4
-    syscall
-    la $a0, Phan2    
-    li $v0, 4
-    syscall
-    la $a0, Phan3    
-    li $v0, 4
-    syscall
-    la $a0, Phan4    
-    li $v0, 4
-    syscall
-    la $a0, Thoat    
-    li $v0, 4
-    syscall
-    la $a0, Nhap    
-    li $v0, 4
+    li $v0, 5 #chon menu
     syscall
     
-    li $v0, 5
-    syscall
-    
-    Case1menu:
-        addi $v1 $0 1
-        bne $v0 $v1 Case2menu
-        j Menu1
-    Case2menu:
-        addi $v1 $0 2
-        bne $v0 $v1 Case3menu
-        j Menu2
-    Case3menu:
-        addi $v1 $0 3
-        bne $v0 $v1 Case4menu
-        j Menu3
-    Case4menu:
-        addi $v1 $0 4
-        bne $v0 $v1 Case5menu
-        j Menu4
-    Case5menu:
-        addi $v1 $0 5
-        bne $v0 $v1 defaultmenu
-        j Exit
-    defaultmenu:
+    #switch-case
+    #Case1
+        beq $v0 1 Menu1
+        nop
+    #Case2
+        beq $v0 2 Menu2
+        nop
+    #Case3
+        beq $v0 3 Menu3
+        nop
+    #Case4
+        beq $v0 4 Menu4
+        nop
+    #Case5:
+        beq $v0 5 Exit
+        nop
+    #defaul
         j main
-#############in ra ####################    
+        nop
+#############in ra binh thuong ####################    
 Menu1:    
-    addi $t0, $0, 0    #bien dem =0
-    addi $t1, $0, 18    
+    addi $s0, $0, 0    #bien dem =0   
     
     la $a0,String1
-Loop:        beq $t1, $t0, main
+    Loop1:        
+	beq $s0, PICTURE_ROW, main
         li $v0, 4
         syscall
-        
-        addi $a0, $a0, 68
-        addi $t0, $t0, 1
-        j Loop
+        NextStr:
+        	lb  $t0,0($a0)
+        	addi $a0, $a0, 1
+        	bne $t0,$0,NextStr
+        	nop
+        	
+        addi $s0, $s0, 1
+        j Loop1
 
-############ bo het so o giua chi giu lai vien################
-Menu2:     addi $s0, $0, 0    #bien dem tung h�ng =0
-    addi $s1, $0, 18
+############ in ra vien cac chu ################
+Menu2:     
+    addi $s0, $0, 0    #bien dem tung hang =0
     la $s2,String1    # $s2 la dia chi cua string1
         
-Lap:    beq $s1, $s0, main
-    addi $t0, $0, 0    # $t0 la bien dem tung k� tu cua 1 h�ng =0
-    addi $t1, $0, 68 # $t1 max 1 h�ng l� 68 k� tu
-    
-In1hang:
-    beq $t1, $t0, End
-    lb $t2, 0($s2)    # $t2 luu gia tri cua tung phan tu trong string1
-#    li $a1 47    #so -1 tuong duong vs gia tri 47
-#    li $a2 57    #so 9 tuong duong vs gia tri 57
-    
-    bgt    $t2, 47, Lonhon0 #neu lon hon 0 thi nhay den Lonhon0
-    j Tmp
-    Lonhon0:     bgt    $t2, 57, Tmp #neu lon hon 9 nua thi van ko doi
-            addi $t2 $0 0x20 # thay doi $t2 thanh dau cach
-            j Tmp    
-Tmp:     li $v0, 11 # in tung ki tu
-    addi $a0 $t2 0
+    Loop2:    
+	beq $s0,PICTURE_ROW, main #all rows are printed
+	nop    
+    CheckBorder:
+        lb $t2, 0($s2)    # $t2 luu gia tri cua tung phan tu trong string1
+	beq $t2, $0, End2 # if t2 = \0, it is end of row
+	nop
+	
+	#check colored 
+	li $t5,0x30 #ascii of 0
+	slt $t6,$t2,$t5
+	li $t5,0x39 #ascii of 9
+	sgt $t7,$t2,$t5
+	add $t7,$t6,$t7 #if $t2 is not a number => $t7 ==1
+	beq $t7, 1, PrintBorder #neu t2 != number thi in luon
+	nop
+    IsNotBorder:
+	addi $t2, $0, 0x20 # thay doi $t2 thanh dau cach neu khong phai la vien
+    PrintBorder:
+    li $v0, 11 # print char
+    add $a0, $t2, $0 
     syscall
     
     addi $s2 $s2 1 #sang chu tiep theo
-    addi $t0, $t0, 1# bien dem chu
-    j In1hang
-End:    addi $s0 $s0 1 # tang bien dem h�ng l�n 1
-    j Lap
-
+    j CheckBorder
+    nop 
+End2:     
+    addi $s2,$s2,1 #sang hang tiep theo
+    addi $s0 $s0, 1 # tang bien dem hang += 1
+    j Loop2
+    nop
 #################doi vi tri chu ############
 Menu3:    addi $s0, $0, 0    #bien dem tung h�ng =0
-    addi $s1, $0, 18
+    addi $s1, $0, PICTURE_ROW
     la $s2,String1 #$s2 luu dia chi cua string1
 Lap2:    beq $s1, $s0, main
     #tao thanh 3 string nho
@@ -198,7 +188,7 @@ NhapmauT:    li     $v0, 4
         addi     $s5 $v0 48    #$s5 luu mau cua chu T
     
     addi $s0, $0, 0    #bien dem tung h�ng =0
-    addi $s1, $0, 18
+    addi $s1, $0, PICTURE_ROW
     la $s2,String1    # $s2 la dia chi cua string1
     li $a1 48 #gia tri cua so 0
     li $a2 57 #gia tri cua so 9
