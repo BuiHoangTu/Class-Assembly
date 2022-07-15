@@ -19,7 +19,7 @@
 	m3: .asciiz "|      "
 	mspace: .asciiz "      "
 	mopen: .asciiz "[[ "
-	mclose: .asciiz "]]        "
+	mclose: .asciiz "]]         "
 
 #static var
 	#s6 inp length
@@ -204,10 +204,10 @@ d3next:
 	addi $s3,$s3,4
 
 	addi $t6, $t6, 8
-	addi $t5, $t5, 1
-	bne $t5, 3, skip #t5 = 3 => 0=> luu o 3 
+	addi $t5, $t5, -1
+	bne $t5, -1, skip #t5 = 3 => 0=> luu o 3 
 	nop 
-	add $t5,$0,$0
+	addi $t5,$0,2
 	skip:
 	bge $t6, $s6, exit1 #used bit >= len -> exit 
 	nop
