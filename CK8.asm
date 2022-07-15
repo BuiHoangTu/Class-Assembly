@@ -153,14 +153,32 @@ print11:
 add $t0, $s0,$0
 b11:	
 	lw $t1, 0($t0) #read block 1 from buffer
-	sw $t1, ($s1) #store into disk1
-#disk 2	
 	lw $t2, 4($t0) #read block 2
-	sw $t2, ($s2) #store in disk 2
-#disk 3	
 	xor $a3, $t1, $t2
-	sw $a3, ($s3)
-
+	#save to disk
+		bne $t5, 0, bd12
+		nop 
+		#t5 ==0 => backup in disk3
+		sw $t1, ($s1) #store in disk1
+		sw $t2, ($s2) #store in disk 2
+		sw $a3, ($s3) #store bk in 3
+		j end_save
+		nop
+	bd12:
+		bne $t5,2,bd1
+		nop
+		# t5 == 2 => backup in disk 2
+		sw $t1, ($s1) #data in disk1
+		sw $a3, ($s2) #bk in disk 2
+		sw $t2, ($s3) #dt in d3
+		j end_save
+		nop
+	bd1:
+		# t5 == 1 => backup in disk 2
+		sw $a3, ($s1) #bk in disk1
+		sw $t1, ($s2) #dt in disk 2
+		sw $t2, ($s3) #dt in d3
+	end_save:
 #print d1 
 	add $a0, $0, $s1 
 	jal d1next
