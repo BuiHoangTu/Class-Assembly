@@ -13,19 +13,83 @@
 	error_length: .asciiz "Do dai chuoi khong hop le! Nhap lai.\n"
 	ms: .asciiz "Try again?"
 	comma: .asciiz ","
-	#CLI design
-		m: .ascii "      Disk 1                 Disk 2               Disk 3\n"
-		m2: .asciiz "----------------       ----------------       ----------------\n"
-		m3: .asciiz "|     "
-		m4: .asciiz "     |       "
-		m5: .asciiz "[[ "
-		m6: .asciiz "]]       "
+#CLI design
+	m: .ascii "      Disk 1                 Disk 2               Disk 3\n"
+	m2: .asciiz "----------------       ----------------       ----------------\n"
+	m3: .asciiz "|      "
+	mspace: .asciiz "      "
+	mopen: .asciiz "[[ "
+	mclose: .asciiz "]]"
 
 #static var
-#	s6 inp length
-#	s5 inp length :8 => so lan lap 	
+	#s6 inp length
+	#s5 inp length :8 => so lan lap 	
+	#s0 buffer address
 
 .text
+j main 
+nop 
+
+#-----------------------------print block layer in disk------------------------------
+	# procedure print_disk 
+	# @param_in
+		# $a0 : address of disk 1
+	# registers : $s4
+#------------------------------------------------------------------------------------
+print_disk: 
+	add $s4,$0,$a0
+	
+	li $v0, 4
+	la $a0, m3 #left border
+	syscall
+
+	#print 4 chars
+		li $v0, 11
+		lb $a0, 0($s4)
+		syscall
+		lb $a0, 1($s4)
+		syscall
+		lb $a0, 2($s4)
+		syscall
+		lb $a0, 3($s4)
+		syscall
+
+	li $v0, 4
+	la $a0, mspace
+	syscall 
+	la $a0, m3
+	syscall
+
+	jal $ra 
+
+#-----------------------------print backup block layer in disk------------------------------
+	# procedure print_backup 
+	# @param_in
+		# $a0 : address of disk 1
+	# registers : $s4
+#------------------------------------------------------------------------------------
+print_backup: 
+	add $s4,$0,$a0
+	
+	li $v0, 4
+	la $a0, mopen #left border
+	syscall
+
+	#print hex
+	li $v0, 34
+	lw $a0, 0($s4)
+	syscall 
+
+	li $v0, 4
+	la $a0, mclose
+	syscall 
+
+
+	jal $ra 
+
+#--------------------print hex 
+
+main:
 	la $s0, buffer
 	
 input:	
@@ -130,3 +194,4 @@ ask:
 exit:	
 	li $v0, 10
 	syscall
+
