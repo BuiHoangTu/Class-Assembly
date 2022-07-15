@@ -19,7 +19,7 @@
 	m3: .asciiz "|      "
 	mspace: .asciiz "      "
 	mopen: .asciiz "[[ "
-	mclose: .asciiz "]]"
+	mclose: .asciiz "]]        "
 
 #static var
 	#s6 inp length
@@ -60,9 +60,9 @@ print_disk:
 	la $a0, m3
 	syscall
 
-	jal $ra 
-
-#-----------------------------print backup block layer in disk------------------------------
+	jr $ra 
+	nop
+#-----------------------------print backup block in disk------------------------------
 	# procedure print_backup 
 	# @param_in
 		# $a0 : address of disk 1
@@ -85,7 +85,8 @@ print_backup:
 	syscall 
 
 
-	jal $ra 
+	jr $ra 
+	nop
 
 #--------------------print hex 
 
@@ -136,7 +137,8 @@ length:
 #-----------------------xet 6 khoi dau----------------------
 #----------------lan 1: luu vao 2 khoi 1,2; xor vao 3-------
 split1:	
-	addi $t6, $0, 0	# so byte da dung (4 byte)
+	add $t6, $0, $0	# so byte da dung (4 byte)
+	add $t5,$0,$0 # o nao chua backup
 
 	#loaded disk address
 	la $s1, d1 
@@ -148,40 +150,79 @@ print11:
 	la $a0, m #print cli
 	syscall
 
-	li $v0, 4
-	la $a0, m3 #left vertical slash 
-	syscall
 add $t0, $s0,$0
 b11:	
 	lw $t1, 0($t0) #read block 1 from buffer
 	sw $t1, ($s1) #store into disk1
-b21:	
+#disk 2	
 	lw $t2, 4($t0) #read block 2
 	sw $t2, ($s2) #store in disk 2
-b31:	
+#disk 3	
 	xor $a3, $t1, $t2
 	sw $a3, ($s3)
-	# next block of all disk
+
+#print d1 
+	add $a0, $0, $s1 
+	jal d1next
+	nop  
+d1next:
+	addi $ra $ra,24
+	beq $t5,1, print_backup
+	nop
+	j print_disk
+	nop 
+	nop 
+
+#print d2 
+	add $a0, $0, $s2
+	jal d2next
+	nop  
+d2next:
+	addi $ra $ra,24
+	beq $t5,2, print_backup
+	nop
+	j print_disk
+	nop 
+	nop 
+
+#print d3 
+	add $a0, $0, $s3
+	jal d3next
+	nop  
+d3next:
+	addi $ra $ra,24
+	beq $t5,0, print_backup
+	nop
+	j print_disk
+	nop 
+	nop 
+
+# next block of all disk
 	addi $t0, $t0, 8
 	addi $s1, $s1, 4
 	addi $s2, $s2, 4
 	addi $s3,$s3,4
 
 	addi $t6, $t6, 8
+	addi $t5, $t5, 1
+	bne $t5, 3, skip #t5 = 3 => 0=> luu o 3 
+	nop 
+	add $t5,$0,$0
+	skip:
 	bge $t6, $s6, exit1 #used bit >= len -> exit 
 	nop
+
+	li $v0, 11
+	li $a0,'\n'
+	syscall 
+
 	j b11
 	nop
-#--------------------------------end 6 khoi dau---------------------------------------
-	
-exit1:	
-	li $v0, 4
-	la $a0, m2
 
 #-------------------------------ket thuc mo phong RAID 5-----------------------------------
 
 #-------------------------------------try again----------------------------------------
-ask:
+exit1:	
 	li $v0, 50
 	la $a0, ms
 	syscall
@@ -189,7 +230,7 @@ ask:
 	nop
 
 
-#-----------------------------------end try again----------------------------------------
+#---------------------------------------------------------------------------
 
 exit:	
 	li $v0, 10
