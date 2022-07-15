@@ -2,7 +2,6 @@
 .eqv disk_size 16
 .data
 	inp_ms: .asciiz "Nhap chuoi ky tu : "
-	hex: .byte '0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f' 
 	#d1-3 is virture disk
 	d1: .space disk_size
 	d2: .space disk_size
@@ -19,7 +18,7 @@
 	m3: .asciiz "|      "
 	mspace: .asciiz "      "
 	mopen: .asciiz "[[ "
-	mclose: .asciiz "]]         "
+	mclose: .asciiz "   ]]      "
 
 #static var
 	#s6 inp length
