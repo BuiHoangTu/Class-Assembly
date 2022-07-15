@@ -2,11 +2,11 @@
 .eqv disk_size 16
 .data
 	inp_ms: .asciiz "Nhap chuoi ky tu : "
+	hex: .byte '0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f' 
 	#d1-3 is virture disk
 	d1: .space disk_size
 	d2: .space disk_size
 	d3: .space disk_size
-	array: .space 32
 	buffer: .space buf_len
 	enter: .asciiz "\n"
 	error_length: .asciiz "Do dai chuoi khong hop le! Nhap lai.\n"
@@ -18,7 +18,7 @@
 	m3: .asciiz "|      "
 	mspace: .asciiz "      "
 	mopen: .asciiz "[[ "
-	mclose: .asciiz "   ]]      "
+	mclose: .asciiz "]]         "
 
 #static var
 	#s6 inp length
@@ -117,7 +117,6 @@ length:
 		nop
 
 	test_length:
-		srl $s5,$t3,3 #len :8 => so lan lap
 		add $s6,$t3,$0
 		andi $t1, $t3, 0x00000007 # xoa het cac bits cua $t3 ve 0, chi giu lai 3 bits cuoi
 		beq $t1, $0, split1 # 3 byte cuoi bang 0 => ::8
@@ -133,10 +132,9 @@ length:
 #----------------------------------------------------------
 
 #------------------------------mo phong RAID 5-------------------------------
-#-----------------------xet 6 khoi dau----------------------
-#----------------lan 1: luu vao 2 khoi 1,2; xor vao 3-------
+
 split1:	
-	add $t6, $0, $0	# so byte da dung (4 byte)
+	add $t6, $0, $0	# so byte da dung (4 byte) so byte = buffer.len => end
 	add $t5,$0,$0 # o nao chua backup
 
 	#loaded disk address
@@ -153,7 +151,7 @@ add $t0, $s0,$0
 b11:	
 	lw $t1, 0($t0) #read block 1 from buffer
 	lw $t2, 4($t0) #read block 2
-	xor $a3, $t1, $t2
+	xor $a3, $t1, $t2 # backup
 	#save to disk
 		bne $t5, 0, bd12
 		nop 
@@ -163,7 +161,7 @@ b11:
 		sw $a3, ($s3) #store bk in 3
 		j end_save
 		nop
-	bd12:
+	bd12: #t5 != 0
 		bne $t5,2,bd1
 		nop
 		# t5 == 2 => backup in disk 2
@@ -173,7 +171,7 @@ b11:
 		j end_save
 		nop
 	bd1:
-		# t5 == 1 => backup in disk 2
+		# t5 !=0,2 => t5 == 1 => backup in disk 2
 		sw $a3, ($s1) #bk in disk1
 		sw $t1, ($s2) #dt in disk 2
 		sw $t2, ($s3) #dt in d3
@@ -181,9 +179,9 @@ b11:
 #print d1 
 	add $a0, $0, $s1 
 	jal d1next
-	nop  
+	nop  #$ra
 d1next:
-	addi $ra $ra,24
+	addi $ra $ra,24 #ra them 6 lenh
 	beq $t5,1, print_backup
 	nop
 	j print_disk
@@ -215,22 +213,24 @@ d3next:
 	nop 
 
 # next block of all disk
-	addi $t0, $t0, 8
+	addi $t0, $t0, 8 
 	addi $s1, $s1, 4
 	addi $s2, $s2, 4
 	addi $s3,$s3,4
 
-	addi $t6, $t6, 8
+	addi $t6, $t6, 8 
+	# t5 [0,2,1,0,2,1,...]
 	addi $t5, $t5, -1
-	bne $t5, -1, skip #t5 = 3 => 0=> luu o 3 
+	bne $t5, -1, skip 
 	nop 
 	addi $t5,$0,2
+
 	skip:
 	bge $t6, $s6, exit1 #used bit >= len -> exit 
 	nop
 
 	li $v0, 11
-	li $a0,'\n'
+	li $a0,'\n'#CLI next line 
 	syscall 
 
 	j b11
@@ -238,7 +238,7 @@ d3next:
 
 #-------------------------------ket thuc mo phong RAID 5-----------------------------------
 
-#-------------------------------------try again----------------------------------------
+#try again
 exit1:	
 	li $v0, 50
 	la $a0, ms
