@@ -2,7 +2,6 @@
 .eqv disk_size 16
 .data
 	inp_ms: .asciiz "Nhap chuoi ky tu : "
-	hex: .byte '0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f' 
 	#d1-3 is virture disk
 	d1: .space disk_size
 	d2: .space disk_size
@@ -81,13 +80,13 @@ print_backup:
 
 	li $v0, 4
 	la $a0, mclose
-	syscall 
+	syscall  
 
 
 	jr $ra 
 	nop
 
-#--------------------print hex 
+#--------------------main--------------------------------------------------------------
 
 main:
 	la $s0, buffer
@@ -128,8 +127,6 @@ length:
 		j input
 #-------------------------------ket thuc kiem tra do dai----------------------------------
 
-
-#----------------------------------------------------------
 
 #------------------------------mo phong RAID 5-------------------------------
 
@@ -178,39 +175,30 @@ b11:
 	end_save:
 #print d1 
 	add $a0, $0, $s1 
-	jal d1next
-	nop  #$ra
-d1next:
-	addi $ra $ra,24 #ra them 6 lenh
+	la $ra,endpd1
 	beq $t5,1, print_backup
 	nop
 	j print_disk
 	nop 
-	nop 
+endpd1:
 
 #print d2 
 	add $a0, $0, $s2
-	jal d2next
-	nop  
-d2next:
-	addi $ra $ra,24
+	la $ra,endpd2
 	beq $t5,2, print_backup
 	nop
 	j print_disk
 	nop 
-	nop 
+endpd2:
 
 #print d3 
 	add $a0, $0, $s3
-	jal d3next
-	nop  
-d3next:
-	addi $ra $ra,24
+	la $ra,endpd3
 	beq $t5,0, print_backup
 	nop
 	j print_disk
 	nop 
-	nop 
+endpd3:
 
 # next block of all disk
 	addi $t0, $t0, 8 

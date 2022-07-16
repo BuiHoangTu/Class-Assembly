@@ -1,4 +1,6 @@
 .eqv PICTURE_ROW 16 #number of rows of picture 
+.eqv C_START 22
+.eqv E_START 42
 .data
 
     #original one contain 16 strings 
@@ -30,11 +32,11 @@
     ChuP:     .asciiz  "Nhap mau cho chu d(0->9): "
     ChuT:     .asciiz  "Nhap mau cho chu e(0->9): "
 .text
-#####################################
+#-----------------------------------------------------------------
     li $t5 50 #t5 mau chu hien tai cua chu L
     li $t6 49 #t6 mau chu hien tai cua chu P
     li $t7 51 #t7 mau chu hien tai cua chu T
-#####################################
+#-----------------------------------------------------------------
 main:
     la $a0, Message0    # nhap menu
     li $v0, 4
@@ -62,7 +64,7 @@ main:
     #defaul
         j main
         nop
-#############in ra binh thuong ####################    
+#---------------------------------in ra binh thuong-------------------------------   
 Menu1:    
     addi $s0, $0, 0    #bien dem =0   
     
@@ -80,7 +82,7 @@ Menu1:
         addi $s0, $s0, 1
         j Loop1
 
-############ in ra vien cac chu ################
+#------------------------ chi in ra vien cac chu------------------------------------
 Menu2:     
     addi $s0, $0, 0    #bien dem tung hang =0
     la $s2,String1    # $s2 la dia chi cua string1
