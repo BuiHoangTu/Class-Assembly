@@ -20,7 +20,7 @@
     String14: .asciiz "    / o o \\             *1111****    *****\n"
     String15: .asciiz "    \\   > /              **111111***111*\n"
     String16: .asciiz "     -----                 ***********    tubh.hust.edu.vn\n"
-
+    ImgArray: .space 64
     Message0: .ascii  "------------Menu-----------\n"
     Phan1:    .ascii  "1. In ra chu\n"
     Phan2:    .ascii  "2. In ra chu rong\n"
@@ -28,15 +28,74 @@
     Phan4:    .ascii  "4. Doi mau cho chu\n"
     Thoat:    .ascii  "5. Thoat\n"
     Nhap:     .asciiz  "Nhap gia tri: "
-    ChuL:     .asciiz  "Nhap mau cho chu c(0->9): "
-    ChuP:     .asciiz  "Nhap mau cho chu d(0->9): "
-    ChuT:     .asciiz  "Nhap mau cho chu e(0->9): "
+    ChuD:     .asciiz  "Nhap mau cho chu d(0->9): "
+    ChuC:     .asciiz  "Nhap mau cho chu c(0->9): "
+    ChuE:     .asciiz  "Nhap mau cho chu e(0->9): "
 .text
-#-----------------------------------------------------------------
-    li $t5 50 #t5 mau chu hien tai cua chu L
-    li $t6 49 #t6 mau chu hien tai cua chu P
-    li $t7 51 #t7 mau chu hien tai cua chu T
-#-----------------------------------------------------------------
+#store row address into ImgArray
+addi $s0, $0, 0    #bien dem =0 
+la $s1, ImgArray
+la $a0, String1
+StoreArray:
+    sw $a0, 0($s1)
+    Loop1:        
+	beq $s0, PICTURE_ROW, main
+    NextStr:
+       	lb  $t0,0($a0)
+       	addi $a0, $a0, 1
+       	bne $t0,$0,NextStr
+       	nop
+        	
+    addi $s0, $s0, 1
+    addi $s1, $s1, 4
+
+    j StoreArray
+    nop
+
+#procedure change_color
+#change character color 
+#@param_in
+#   $a0,$a1,$a2 color of D,C,E
+#use registers 
+#   $t0,$t1,$t2
+#------------------------------------------------------------------
+change_color:
+    addi $s0, $0, 0    #bien dem tung hang =0
+    la $s2,String1    # $s2 la dia chi cua string1
+        
+    Loop2:    
+	beq $s0,PICTURE_ROW, main #all rows are printed
+	nop    
+    CheckBorder:
+        lb $t2, 0($s2)    # $t2 luu gia tri cua tung phan tu trong string1
+	beq $t2, $0, End2 # if t2 = \0, it is end of row
+	nop
+	
+	#check colored 
+	li $t5,0x30 #ascii of 0
+	slt $t6,$t2,$t5
+	li $t5,0x39 #ascii of 9
+	sgt $t7,$t2,$t5
+	add $t7,$t6,$t7 #if $t2 is not a number => $t7 ==1
+	beq $t7, 1, PrintBorder #neu t2 != number thi in luon
+	nop
+    IsNotBorder:
+	addi $t2, $0, 0x20 # thay doi $t2 thanh dau cach neu khong phai la vien
+    PrintBorder:
+    li $v0, 11 # print char
+    add $a0, $t2, $0 
+    syscall
+    
+    addi $s2 $s2 1 #sang chu tiep theo
+    j CheckBorder
+    nop 
+End2:     
+    addi $s2,$s2,1 #sang hang tiep theo
+    addi $s0 $s0, 1 # tang bien dem hang += 1
+    j Loop2
+    nop
+#----------------------------------------------------------------------------------
+
 main:
     la $a0, Message0    # nhap menu
     li $v0, 4
@@ -119,25 +178,26 @@ End2:
     j Loop2
     nop
 #################doi vi tri chu ############
-Menu3:    addi $s0, $0, 0    #bien dem tung h�ng =0
-    addi $s1, $0, PICTURE_ROW
+Menu3:    
+    addi $s0, $0, 0    #bien dem tung hang =0
     la $s2,String1 #$s2 luu dia chi cua string1
-Lap2:    beq $s1, $s0, main
+Lap2:    
+    beq $s0, PICTURE_ROW, End3
     #tao thanh 3 string nho
-    sb $0 21($s2)
-    sb $0 43($s2)
-    sb $0 65($s2)
+    sb $0 C_START($s2)
+    sb $0 E_START($s2)
+
     #doi vi tri
     li $v0, 4 
-    la $a0 44($s2) #in chu T
+    la $a0 44($s2) #in chu E
     syscall
     
     li $v0, 4 
-    la $a0 22($s2) # in chu P
+    la $a0 22($s2) # in chu C
     syscall
     
     li $v0, 4 
-    la $a0 0($s2) # in chu L
+    la $a0 0($s2) # in chu D
     syscall
     
     li $v0, 4 
@@ -152,42 +212,48 @@ Lap2:    beq $s1, $s0, main
     addi $s0 $s0 1
     addi $s2 $s2 68
     j Lap2
+End3:
+    addi $a0,$0,' '
+    sb $a0 C_START($s2)
+    sb $a0 E_START($s2)
+    j main
+    nop
 
 ############ doi mau cho chu ################
 Menu4: 
-NhapmauL:    li     $v0, 4        
-        la     $a0, ChuL
+NhapmauD:    li     $v0, 4        
+        la     $a0, ChuD
         syscall
     
-        li     $v0, 5        # lay mau cua ki tu L
+        li     $v0, 5        # lay mau cua ki tu D
         syscall
 
-        blt    $v0,0, NhapmauL
-        bgt    $v0,9, NhapmauL
+        blt    $v0,0, NhapmauD
+        bgt    $v0,9, NhapmauD
         
-        addi     $s3 $v0 48    #$s3 luu mau cua chu L
-NhapmauP:    li     $v0, 4        
-        la     $a0, ChuP
+        addi     $s3 $v0 48    #$s3 luu mau cua chu D
+NhapmauC:    li     $v0, 4        
+        la     $a0, ChuC
         syscall
     
-        li     $v0, 5        # lay mau cua ki tu P
+        li     $v0, 5        # lay mau cua ki tu C
         syscall
 
-        blt    $v0, 0, NhapmauP
-        bgt    $v0, 9, NhapmauP
+        blt    $v0, 0, NhapmauC
+        bgt    $v0, 9, NhapmauC
                 
-        addi     $s4  $v0 48    #$s4 luu mau cua chu P
-NhapmauT:    li     $v0, 4        
-        la     $a0, ChuT
+        addi     $s4  $v0 48    #$s4 luu mau cua chu C
+NhapmauE:    li     $v0, 4        
+        la     $a0, ChuE
         syscall
     
-        li     $v0, 5        # lay mau cua ki tu T
+        li     $v0, 5        # lay mau cua ki tu E
         syscall
 
-        blt    $v0, 0, NhapmauT
-        bgt    $v0, 9, NhapmauT
+        blt    $v0, 0, NhapmauE
+        bgt    $v0, 9, NhapmauE
             
-        addi     $s5 $v0 48    #$s5 luu mau cua chu T
+        addi     $s5 $v0 48    #$s5 luu mau cua chu E
     
     addi $s0, $0, 0    #bien dem tung h�ng =0
     addi $s1, $0, PICTURE_ROW
@@ -203,10 +269,10 @@ Lapdoimau:    beq $s1, $s0, updatemau
 In1hangdoimau:
     beq $t1, $t0, Enddoimau
     lb $t2, 0($s2)    # $t2 luu gia tri cua tung phan tu trong string1
-    CheckL: bgt    $t0, 21, CheckP #kiem tra het chu L chua
+    CheckL: bgt    $t0, 21, CheckP #kiem tra het chu D chua
         beq    $t2, $t5, fixL
         j Tmpdoimau
-    CheckP: bgt    $t0, 43, CheckT #kiem tra het chu P chua
+    CheckP: bgt    $t0, 43, CheckT #kiem tra het chu C chua
         beq    $t2, $t6, fixP
         j Tmpdoimau
     CheckT: beq    $t2, $t7, fixT
