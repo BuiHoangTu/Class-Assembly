@@ -33,12 +33,11 @@
     ChuE:     .asciiz  "Nhap mau cho chu e(0->9): "
 .text
 #store row address into ImgArray
-addi $s0, $0, 0    #bien dem =0 
+addi $s0, $0, 1    #bien dem =0 
 la $s1, ImgArray
 la $a0, String1
 StoreArray:
-    sw $a0, 0($s1)
-    Loop1:        
+    sw $a0, 0($s1)        
 	beq $s0, PICTURE_ROW, main
     NextStr:
        	lb  $t0,0($a0)
