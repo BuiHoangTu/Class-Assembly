@@ -125,20 +125,17 @@ main:
 #---------------------------------in ra binh thuong-------------------------------   
 Menu1:    
     addi $s0, $0, 0    #bien dem =0   
-    
-    la $a0,String1
-    Loop1:        
-	beq $s0, PICTURE_ROW, main
+    la $s1,ImgArray
         li $v0, 4
+    Loop1: 
+        lw $a0, 0($s1)       
         syscall
-        NextStr:
-        	lb  $t0,0($a0)
-        	addi $a0, $a0, 1
-        	bne $t0,$0,NextStr
-        	nop
-        	
         addi $s0, $s0, 1
+        addi $s1,$s1,4
+        beq $s0, PICTURE_ROW, main
+        nop
         j Loop1
+        nop
 
 #------------------------ chi in ra vien cac chu------------------------------------
 Menu2:     
