@@ -3,7 +3,7 @@
 .eqv C_START 22
 .eqv C_END 41
 .eqv E_START 42
-.eqv E_END 48
+.eqv E_END 58
 .data
 
     #original one contain 16 strings 
@@ -207,6 +207,8 @@ Loop3:
     syscall
      
     li $v0,11
+    addi $a0,$s0,' '
+    syscall
     addi $a0,$0,'\n' 
     syscall
     
