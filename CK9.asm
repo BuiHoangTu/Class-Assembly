@@ -261,38 +261,43 @@ Menu4:
 PrintColor:
     la $s0, ImgArray    
     li $s6,0 #line counter 
-EachLine:
+EachLine4:
     beq $s6,PICTURE_ROW,main
     lw $s1,0($s0)
     InD:
         
         add $a1, $s3,$0 #color of D
-        addi $v0,$0, D_END
-        sub $a2, $v0,$s1
+        addi $a2,$s1, D_END
 
         jal print_char
         
         addi $s1,$s1,1 #next char -> into C
+        li $a0, ' '
+        li $v0, 11
+        syscall  
 
     InC:
         
         add $a1, $s4,$0 #color of C
-        addi $v0,$0, C_END
-        addi $a2, $v0,-C_START
+        addi $a2,$s1, C_END
+        addi $a2,$a2,-C_START
 
         jal print_char
         
         addi $s1,$s1,1
+        li $a0, ' '
+        li $v0, 11
+        syscall  
 
     InE:
         
         add $a1, $s4,$0 #color of E
-        lw $v0,4($s0)
-        addi $a2, $v0,-E_START
+        lw $a2,4($s0)
 
         jal print_char
         
     addi $s0,$s0,4
     addi $s6,$s6,1
-
+    j EachLine4
+    nop
 Exit:
