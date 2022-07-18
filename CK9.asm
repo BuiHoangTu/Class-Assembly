@@ -3,7 +3,7 @@
 .eqv C_START 22
 .eqv C_END 41
 .eqv E_START 42
-.eqv E_END 58
+.eqv E_END 57
 .data
 
     #original one contain 16 strings 
@@ -22,7 +22,7 @@
     String13: .asciiz "      ---              *1111**                            \n"
     String14: .asciiz "    / o o \\             *1111****    *****                \n"
     String15: .asciiz "    \\   > /              **111111***111*                  \n"
-    String16: .asciiz "     -----                 ***********    tubh.hust.edu.vn\n"
+    String16: .asciiz "     -----                 ***********    tubh.hust.edu   \n"
     ImgArray: .space 68
     Message0: .ascii  "------------Menu-----------\n"
     Phan1:    .ascii  "1. In ra chu\n"
@@ -83,48 +83,7 @@ endpc:
 jr $ra 
 nop
 
-#procedure change_color
-#change character color 
-#@param_in
-#   $a0,$a1,$a2 color of D,C,E
-#use registers 
-#   $t0,$t1,$t2
-#------------------------------------------------------------------
-change_color:
-    addi $s0, $0, 0    #bien dem tung hang =0
-    la $s2,String1    # $s2 la dia chi cua string1
-        
-    Loop2:    
-	beq $s0,PICTURE_ROW, main #all rows are printed
-	nop    
-    CheckBorder:
-        lb $t2, 0($s2)    # $t2 luu gia tri cua tung phan tu trong string1
-	beq $t2, $0, End2 # if t2 = \0, it is end of row
-	nop
-	
-	#check colored 
-	li $t5,0x30 #ascii of 0
-	slt $t6,$t2,$t5
-	li $t5,0x39 #ascii of 9
-	sgt $t7,$t2,$t5
-	add $t7,$t6,$t7 #if $t2 is not a number => $t7 ==1
-	beq $t7, 1, PrintBorder #neu t2 != number thi in luon
-	nop
-    IsNotBorder:
-	addi $t2, $0, 0x20 # thay doi $t2 thanh dau cach neu khong phai la vien
-    PrintBorder:
-    li $v0, 11 # print char
-    add $a0, $t2, $0 
-    syscall
-    
-    addi $s2 $s2 1 #sang chu tiep theo
-    j CheckBorder
-    nop 
-End2:     
-    addi $s2,$s2,1 #sang hang tiep theo
-    addi $s0 $s0, 1 # tang bien dem hang += 1
-    j Loop2
-    nop
+
 #----------------------------------------------------------------------------------
 
 main:
@@ -172,7 +131,7 @@ Menu1:
 #------------------------ chi in ra vien cac chu------------------------------------
 Menu2:     
     la $s0, ImgArray    #bien dem tung hang =0
-    la $s1,0($s0)    # $s1 la dia chi cua string1    
+    lw $s1,0($s0)    # $s1 la dia chi cua string1    
     li $a1, ' '
     lw $a2, 64($s0)
 
@@ -291,7 +250,7 @@ EachLine4:
 
     InE:
         
-        add $a1, $s4,$0 #color of E
+        add $a1, $s5,$0 #color of E
         lw $a2,4($s0)
 
         jal print_char
