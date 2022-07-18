@@ -73,13 +73,14 @@ pcloop:
 	blt $a0,0x30, pcprint 
 	bgt $a0,0x39,pcprint
     nop 
-    addi $a0,$0,$a1
+    add $a0,$0,$a1
     pcprint: syscall
     addi $t0,$t0,1
     
-    addi $s1,$s0,1
+    addi $s1,$s1,1
     j pcloop
     nop
+endpc:
 jr $ra 
 nop
 
@@ -174,8 +175,8 @@ Menu2:
     la $s0, ImgArray    #bien dem tung hang =0
     la $s1,String1    # $s1 la dia chi cua string1    
     li $a1, ' '
-    addi $v0,$0, $s1
-    addi $v1, $v0, 64($s0)
+    add $v0,$0, $s1
+    lw  $v1, 64($s0)
     sub $a2,$v1,$v0
 
     jal print_char
@@ -205,6 +206,7 @@ Loop3:
     la $a0 0($s2) # in chu D
     syscall
      
+    li $v0,11
     addi $a0,$0,'\n' 
     syscall
     
@@ -278,7 +280,7 @@ EachLine:
         
         add $a1, $s4,$0 #color of C
         addi $v0,$0, C_END
-        addi $a2, $v0,- C_START
+        addi $a2, $v0,-C_START
 
         jal print_char
         
@@ -288,7 +290,7 @@ EachLine:
         
         add $a1, $s4,$0 #color of E
         lw $v0,4($s0)
-        addi $a2, $v0,- E_START
+        addi $a2, $v0,-E_START
 
         jal print_char
         
