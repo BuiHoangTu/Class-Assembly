@@ -14,3 +14,14 @@ Chi tiết báo cáo tại "GK report.odt"
 + Read in the number of students in the class.
 + Read information about each student, including: Name, Math mark.
 + List the names of all students who have notpassed the Math exam.
+
+## Mini project CK 
+
+Chi tiết báo cáo tại "CK report.odt"
+
+### B8:
+![alt text](./CK8.png)
+
+
+### B9:
+![alt text](./CK9.png)
