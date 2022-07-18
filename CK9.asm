@@ -3,24 +3,25 @@
 .eqv C_START 22
 .eqv C_END 41
 .eqv E_START 42
+.eqv E_END 48
 .data
 
     #original one contain 16 strings 
-    String1: .asciiz  "                                          *************\n"
-    String2: .asciiz  "**************                            *3333333333333*\n"
-    String3: .asciiz  "*222222222222222*                         *33333********\n"
-    String4: .asciiz  "*22222******222222*                       *33333*\n"
-    String5: .asciiz  "*22222*      *22222*                      *33333********\n"
-    String6: .asciiz  "*22222*       *22222*      *************  *3333333333333*\n"
-    String7: .asciiz  "*22222*       *22222*    **11111*****111* *33333********\n"
-    String8: .asciiz  "*22222*       *22222*  **1111**       **  *33333*\n"
-    String9: .asciiz  "*22222*      *222222*  *1111*             *33333********\n"
-    String10: .asciiz "*22222*******222222*  *11111*             *3333333333333*\n"
-    String11: .asciiz "*2222222222222222*    *11111*              *************\n"
-    String12: .asciiz "***************       *11111*\n"
-    String13: .asciiz "      ---              *1111**\n"
-    String14: .asciiz "    / o o \\             *1111****    *****\n"
-    String15: .asciiz "    \\   > /              **111111***111*\n"
+    String1: .asciiz  "                                          *************   \n"
+    String2: .asciiz  "**************                            *3333333333333* \n"
+    String3: .asciiz  "*222222222222222*                         *33333********  \n"
+    String4: .asciiz  "*22222******222222*                       *33333*         \n"
+    String5: .asciiz  "*22222*      *22222*                      *33333********  \n"
+    String6: .asciiz  "*22222*       *22222*      *************  *3333333333333* \n"
+    String7: .asciiz  "*22222*       *22222*    **11111*****111* *33333********  \n"
+    String8: .asciiz  "*22222*       *22222*  **1111**       **  *33333*         \n"
+    String9: .asciiz  "*22222*      *222222*  *1111*             *33333********  \n"
+    String10: .asciiz "*22222*******222222*  *11111*             *3333333333333* \n"
+    String11: .asciiz "*2222222222222222*    *11111*              *************  \n"
+    String12: .asciiz "***************       *11111*                             \n"
+    String13: .asciiz "      ---              *1111**                            \n"
+    String14: .asciiz "    / o o \\             *1111****    *****                \n"
+    String15: .asciiz "    \\   > /              **111111***111*                  \n"
     String16: .asciiz "     -----                 ***********    tubh.hust.edu.vn\n"
     ImgArray: .space 64
     Message0: .ascii  "------------Menu-----------\n"
@@ -207,44 +208,38 @@ End2:
 Menu3:    
     addi $s0, $0, 0    #bien dem tung hang =0
     la $s1, ImgArray
-    la $s2,String1 #$s2 luu dia chi cua string1
-Lap2:    
+Loop3:    
     lw $s2, 0($s1) 
-    beq $s0, PICTURE_ROW, End3
+    beq $s0, PICTURE_ROW, main
     #tao thanh 3 string nho
     sb $0 D_END($s2)
     sb $0 C_END($s2)
+    sb $0 E_END($s2)
 
     #doi vi tri
     li $v0, 4 
     la $a0 E_START($s2) #in chu E
     syscall
     
-    li $v0, 4 
     la $a0 C_START($s2) # in chu C
     syscall
     
-    li $v0, 4 
     la $a0 0($s2) # in chu D
     syscall
-    
-    li $v0, 4 
-    la $a0 66($s2)
+     
+    addi $a0,$0,'\n' 
     syscall
-    # ghep lai thanh string ban dau
-    addi $t1 $0 0x20
-    sb $t1 21($s2)
-    sb $t1 43($s2)
-    sb $t1 65($s2)
     
-    addi $s0 $s0 1
-    addi $s2 $s2 68
-    j Lap2
-End3:
+    #tra lai chuoi nhu cu
     addi $a0,$0,' '
     sb $a0 D_END($s2)
     sb $a0 C_END($s2)
-    j main
+    sb $a0 E_END($s2)
+    
+    addi $s0,$s0,1 #counter ++
+    addi $s1,$s1,4 #next line
+
+    j Loop3
     nop
 
 ############ doi mau cho chu ################
