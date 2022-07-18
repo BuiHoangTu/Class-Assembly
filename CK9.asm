@@ -58,17 +58,16 @@ StoreArray:
 #procedure print_char
 #detect color and change it, print line  
 #@param_in 
-#   $s1:address 
+#   $s1:begin address 
 #   $a1:color (number)
-#   $a2:line_len
+#   $a2:last address
 #registers : t0
 #-----------------------------------------------------
 print_char:
 
 li $v0,11
-add $t0,$0,0 #length counter
 pcloop:
-    bge $t0,$a2,endpc
+    bge $s1,$a2,endpc
     lb $a0,0($s1)
 	blt $a0,0x30, pcprint 
 	bgt $a0,0x39,pcprint
@@ -173,11 +172,10 @@ Menu1:
 #------------------------ chi in ra vien cac chu------------------------------------
 Menu2:     
     la $s0, ImgArray    #bien dem tung hang =0
-    la $s1,String1    # $s1 la dia chi cua string1    
+    la $s1,0($s0)    # $s1 la dia chi cua string1    
     li $a1, ' '
-    add $v0,$0, $s1
-    lw  $v1, 64($s0)
-    sub $a2,$v1,$v0
+    lw $a2, 64($s0)
+
 
     jal print_char
     nop
