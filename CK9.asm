@@ -1,5 +1,7 @@
 .eqv PICTURE_ROW 16 #number of rows of picture 
+.eqv D_END 21
 .eqv C_START 22
+.eqv C_END 41
 .eqv E_START 42
 .data
 
@@ -32,6 +34,7 @@
     ChuC:     .asciiz  "Nhap mau cho chu c(0->9): "
     ChuE:     .asciiz  "Nhap mau cho chu e(0->9): "
 .text
+
 #store row address into ImgArray
 addi $s0, $0, 1    #bien dem =0 
 la $s1, ImgArray
@@ -50,6 +53,33 @@ StoreArray:
 
     j StoreArray
     nop
+
+#procedure print_char
+#detect color and change it, print line  
+#@param_in 
+#   $s1:address 
+#   $a1:color (number)
+#   $a2:line_len
+#registers : t0
+#-----------------------------------------------------
+print_char:
+
+li $v0,11
+add $t0,$0,0 #length counter
+pcloop:
+    bge $t0,$a2,endpc
+    lb $a0,0($s1)
+	blt $a0,0x30, pcprint 
+	bgt $a0,0x39,pcprint
+    nop 
+    addi $a0,$0,$a1
+    pcprint: syscall
+    addi $t0,$t0,1
+    addi $s1,$s0,1
+    j pcloop
+    nop
+jr $ra 
+nop
 
 #procedure change_color
 #change character color 
@@ -176,20 +206,22 @@ End2:
 #################doi vi tri chu ############
 Menu3:    
     addi $s0, $0, 0    #bien dem tung hang =0
+    la $s1, ImgArray
     la $s2,String1 #$s2 luu dia chi cua string1
 Lap2:    
+    lw $s2, 0($s1) 
     beq $s0, PICTURE_ROW, End3
     #tao thanh 3 string nho
-    sb $0 C_START($s2)
-    sb $0 E_START($s2)
+    sb $0 D_END($s2)
+    sb $0 C_END($s2)
 
     #doi vi tri
     li $v0, 4 
-    la $a0 44($s2) #in chu E
+    la $a0 E_START($s2) #in chu E
     syscall
     
     li $v0, 4 
-    la $a0 22($s2) # in chu C
+    la $a0 C_START($s2) # in chu C
     syscall
     
     li $v0, 4 
@@ -210,14 +242,15 @@ Lap2:
     j Lap2
 End3:
     addi $a0,$0,' '
-    sb $a0 C_START($s2)
-    sb $a0 E_START($s2)
+    sb $a0 D_END($s2)
+    sb $a0 C_END($s2)
     j main
     nop
 
 ############ doi mau cho chu ################
 Menu4: 
-NhapmauD:    li     $v0, 4        
+    NhapmauD:    
+        li     $v0, 4        
         la     $a0, ChuD
         syscall
     
@@ -226,9 +259,10 @@ NhapmauD:    li     $v0, 4
 
         blt    $v0,0, NhapmauD
         bgt    $v0,9, NhapmauD
-        
+        nop
         addi     $s3 $v0 48    #$s3 luu mau cua chu D
-NhapmauC:    li     $v0, 4        
+    NhapmauC:
+        li     $v0, 4        
         la     $a0, ChuC
         syscall
     
@@ -237,9 +271,10 @@ NhapmauC:    li     $v0, 4
 
         blt    $v0, 0, NhapmauC
         bgt    $v0, 9, NhapmauC
-                
+        nop
         addi     $s4  $v0 48    #$s4 luu mau cua chu C
-NhapmauE:    li     $v0, 4        
+    NhapmauE:
+        li     $v0, 4        
         la     $a0, ChuE
         syscall
     
@@ -248,48 +283,43 @@ NhapmauE:    li     $v0, 4
 
         blt    $v0, 0, NhapmauE
         bgt    $v0, 9, NhapmauE
-            
+        nop
         addi     $s5 $v0 48    #$s5 luu mau cua chu E
-    
-    addi $s0, $0, 0    #bien dem tung h�ng =0
-    addi $s1, $0, PICTURE_ROW
-    la $s2,String1    # $s2 la dia chi cua string1
-    li $a1 48 #gia tri cua so 0
-    li $a2 57 #gia tri cua so 9
-#    li $t3 21 
-#    li $t4 43 
-Lapdoimau:    beq $s1, $s0, updatemau
-        addi $t0, $0, 0    # $t0 la bien dem tung k� tu cua 1 h�ng =0
-        addi $t1, $0, 68 # $t1 max 1 h�ng l� 68 k� tu
-    
-In1hangdoimau:
-    beq $t1, $t0, Enddoimau
-    lb $t2, 0($s2)    # $t2 luu gia tri cua tung phan tu trong string1
-    CheckL: bgt    $t0, 21, CheckP #kiem tra het chu D chua
-        beq    $t2, $t5, fixL
-        j Tmpdoimau
-    CheckP: bgt    $t0, 43, CheckT #kiem tra het chu C chua
-        beq    $t2, $t6, fixP
-        j Tmpdoimau
-    CheckT: beq    $t2, $t7, fixT
-        j Tmpdoimau
+PrintColor:
+    la $s0, ImgArray    
+    li $s6,0 #line counter 
+EachLine:
+    beq $s6,PICTURE_ROW,main
+    lw $s1,0($s0)
+    InD:
         
-fixL:     sb $s3 0($s2)
-    j Tmpdoimau
-fixP:     sb $s4 0($s2)
-    j Tmpdoimau
-fixT:     sb $s5 0($s2)
-    j Tmpdoimau
-Tmpdoimau:     addi $s2 $s2 1 #sang chu tiep theo
-        addi $t0, $t0, 1# bien dem chu
-        j In1hangdoimau
-Enddoimau:        li $v0, 4  
-        addi $a0 $s2 -68
-        syscall
-        addi $s0 $s0 1 # tang bien dem h�ng l�n 1
-        j Lapdoimau
-updatemau: move $t5 $s3
-    move $t6 $s4
-    move $t7 $s5
-    j main    
+        add $a1, $s3,$0 #color of D
+        addi $v0,$0, D_END
+        sub $a2, $v0,$s1
+
+        jal print_char
+        
+        addi $s1,$s1,1 #next char -> into C
+
+    InC:
+        
+        add $a1, $s4,$0 #color of C
+        addi $v0,$0, C_END
+        addi $a2, $v0,- C_START
+
+        jal print_char
+        
+        addi $s1,$s1,1
+
+    InE:
+        
+        add $a1, $s4,$0 #color of E
+        lw $v0,4($s0)
+        addi $a2, $v0,- E_START
+
+        jal print_char
+        
+    addi $s0,$s0,4
+    addi $s6,$s6,1
+
 Exit:
