@@ -23,7 +23,7 @@
     String14: .asciiz "    / o o \\             *1111****    *****                \n"
     String15: .asciiz "    \\   > /              **111111***111*                  \n"
     String16: .asciiz "     -----                 ***********    tubh.hust.edu.vn\n"
-    ImgArray: .space 64
+    ImgArray: .space 68
     Message0: .ascii  "------------Menu-----------\n"
     Phan1:    .ascii  "1. In ra chu\n"
     Phan2:    .ascii  "2. In ra chu rong\n"
@@ -37,7 +37,7 @@
 .text
 
 #store row address into ImgArray
-addi $s0, $0, 1    #bien dem =0 
+addi $s0, $0, 0    #bien dem =0 
 la $s1, ImgArray
 la $a0, String1
 StoreArray:
@@ -76,6 +76,7 @@ pcloop:
     addi $a0,$0,$a1
     pcprint: syscall
     addi $t0,$t0,1
+    
     addi $s1,$s0,1
     j pcloop
     nop
@@ -170,39 +171,16 @@ Menu1:
 
 #------------------------ chi in ra vien cac chu------------------------------------
 Menu2:     
-    addi $s0, $0, 0    #bien dem tung hang =0
-    la $s2,String1    # $s2 la dia chi cua string1
-        
-    Loop2:    
-	beq $s0,PICTURE_ROW, main #all rows are printed
-	nop    
-    CheckBorder:
-        lb $t2, 0($s2)    # $t2 luu gia tri cua tung phan tu trong string1
-	beq $t2, $0, End2 # if t2 = \0, it is end of row
-	nop
-	
-	#check colored 
-	li $t5,0x30 #ascii of 0
-	slt $t6,$t2,$t5
-	li $t5,0x39 #ascii of 9
-	sgt $t7,$t2,$t5
-	add $t7,$t6,$t7 #if $t2 is not a number => $t7 ==1
-	beq $t7, 1, PrintBorder #neu t2 != number thi in luon
-	nop
-    IsNotBorder:
-	addi $t2, $0, 0x20 # thay doi $t2 thanh dau cach neu khong phai la vien
-    PrintBorder:
-    li $v0, 11 # print char
-    add $a0, $t2, $0 
-    syscall
-    
-    addi $s2 $s2 1 #sang chu tiep theo
-    j CheckBorder
-    nop 
-End2:     
-    addi $s2,$s2,1 #sang hang tiep theo
-    addi $s0 $s0, 1 # tang bien dem hang += 1
-    j Loop2
+    la $s0, ImgArray    #bien dem tung hang =0
+    la $s1,String1    # $s1 la dia chi cua string1    
+    li $a1, ' '
+    addi $v0,$0, $s1
+    addi $v1, $v0, 64($s0)
+    sub $a2,$v1,$v0
+
+    jal print_char
+    nop
+    j main
     nop
 #################doi vi tri chu ############
 Menu3:    
