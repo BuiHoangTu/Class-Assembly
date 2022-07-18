@@ -207,8 +207,6 @@ Loop3:
     syscall
      
     li $v0,11
-    addi $a0,$s0,' '
-    syscall
     addi $a0,$0,'\n' 
     syscall
     
