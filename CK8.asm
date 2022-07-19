@@ -1,4 +1,4 @@
-.eqv buf_len 5000
+Z.eqv buf_len 5000
 .eqv disk_size 16
 .data
 	inp_ms: .asciiz "Nhap chuoi ky tu : "
@@ -18,6 +18,9 @@
 	mspace: .asciiz "      "
 	mopen: .asciiz "[[ "
 	mclose: .asciiz "]]         "
+		hex:	.byte '0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'
+		.align 2
+
 
 #static var
 	#s6 inp length
@@ -63,21 +66,42 @@ print_disk:
 #-----------------------------print backup block in disk------------------------------
 	# procedure print_backup 
 	# @param_in
-		# $a0 : address of disk 1
-	# registers : $s4
+		# $a0 : address of disk
+	# registers : s4,t4,t8,t9
 #------------------------------------------------------------------------------------
 print_backup: 
 	add $s4,$0,$a0
-	
+	add $t4,$0,$0
 	li $v0, 4
 	la $a0, mopen #left border
 	syscall
 
-	#print hex
-	li $v0, 34
-	lw $a0, 0($s4)
-	syscall 
+	print_hex:
+		addi $t4,$t4,1
+		la $s7,hex
+		lw $t8, 0($s4)
+		
+		#in 2 so hex dau
+		srl $t9, $t8, 4 		# dich phai 4 bit
+		and $t9,$t9,0xf  		# giu lai gia tri cuoi cua s0;
+		add $a2,$s7,$t9         # lay dia chi ki tu ascii tuong ung
+		lb $a0,0($a2) 		# load kí tu ascii tu dia chi tren
+		li $v0,11
+		syscall 			#in ra ky tu duy nhat
+		and $t9,$t8,0xf         # in ra man hinh ki tu tiep theo
+		add $a2,$s7,$t9         # lay dia chi ki tu ascii tuong ung
+		lb $a0,0($a2) 		# load kí tu ascii tu dia chi tren
+		li $v0,11
+		syscall	
+	
+		li $a0,','
+		li $v0,11
+		syscall
 
+		srl $t8, $t8,8 #next hex 
+		bne $t4,4, print_hex
+		nop 
+		
 	li $v0, 4
 	la $a0, mclose
 	syscall  
