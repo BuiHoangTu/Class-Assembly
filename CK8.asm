@@ -1,5 +1,5 @@
-Z.eqv buf_len 5000
-.eqv disk_size 16
+.eqv buf_len 5000
+.eqv disk_size 64
 .data
 	inp_ms: .asciiz "Nhap chuoi ky tu : "
 	#d1-3 is virture disk
@@ -18,7 +18,7 @@ Z.eqv buf_len 5000
 	mspace: .asciiz "      "
 	mopen: .asciiz "[[ "
 	mclose: .asciiz "]]         "
-		hex:	.byte '0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'
+		hex:	.byte '0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'
 		.align 2
 
 
@@ -71,13 +71,12 @@ print_disk:
 #------------------------------------------------------------------------------------
 print_backup: 
 	add $s4,$0,$a0
-	add $t4,$0,$0
+	
 	li $v0, 4
 	la $a0, mopen #left border
 	syscall
 
-	print_hex:
-		addi $t4,$t4,1
+	#print hex
 		la $s7,hex
 		lw $t8, 0($s4)
 		
@@ -98,9 +97,59 @@ print_backup:
 		li $v0,11
 		syscall
 
-		srl $t8, $t8,8 #next hex 
-		bne $t4,4, print_hex
-		nop 
+		#in 2 so hex tiep (2)
+		srl $t9, $t8, 12 		# dich phai 4 bit
+		and $t9,$t9,0xf  		# giu lai gia tri cuoi cua s0;
+		add $a2,$s7,$t9         # lay dia chi ki tu ascii tuong ung
+		lb $a0,0($a2) 		# load kí tu ascii tu dia chi tren
+		li $v0,11
+		syscall 
+
+		srl $t9, $t8, 8 		# dich phai 4 bit
+		and $t9,$t9,0xf  		# giu lai gia tri cuoi cua s0;
+		add $a2,$s7,$t9         # lay dia chi ki tu ascii tuong ung
+		lb $a0,0($a2) 		# load kí tu ascii tu dia chi tren
+		li $v0,11
+		syscall 
+		
+		li $a0,','
+		li $v0,11
+		syscall
+
+		#in 2 so hex tiep (3) 
+		srl $t9, $t8, 20 		# dich phai 4 bit
+		and $t9,$t9,0xf  		# giu lai gia tri cuoi cua s0;
+		add $a2,$s7,$t9         # lay dia chi ki tu ascii tuong ung
+		lb $a0,0($a2) 		# load kí tu ascii tu dia chi tren
+		li $v0,11
+		syscall 
+
+		srl $t9, $t8, 16 		# dich phai 4 bit
+		and $t9,$t9,0xf  		# giu lai gia tri cuoi cua s0;
+		add $a2,$s7,$t9         # lay dia chi ki tu ascii tuong ung
+		lb $a0,0($a2) 		# load kí tu ascii tu dia chi tren
+		li $v0,11
+		syscall 
+		
+		li $a0,','
+		li $v0,11
+		syscall
+
+		#in 2 so hex tiep (4)
+		srl $t9, $t8, 28 		# dich phai 4 bit
+		and $t9,$t9,0xf  		# giu lai gia tri cuoi cua s0;
+		add $a2,$s7,$t9         # lay dia chi ki tu ascii tuong ung
+		lb $a0,0($a2) 		# load kí tu ascii tu dia chi tren
+		li $v0,11
+		syscall 
+
+		srl $t9, $t8, 24		# dich phai 4 bit
+		and $t9,$t9,0xf  		# giu lai gia tri cuoi cua s0;
+		add $a2,$s7,$t9         # lay dia chi ki tu ascii tuong ung
+		lb $a0,0($a2) 		# load kí tu ascii tu dia chi tren
+		li $v0,11
+		syscall 
+
 		
 	li $v0, 4
 	la $a0, mclose
@@ -155,7 +204,7 @@ length:
 #------------------------------mo phong RAID 5-------------------------------
 
 split1:	
-	add $t6, $0, $0	# so byte da dung (4 byte) so byte = buffer.len => end
+	add $t6, $0, $0	# so byte da dung (4 byte) so byte = buffer.len() => end
 	add $t5,$0,$0 # o nao chua backup
 
 	#loaded disk address
